@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
-from . import Dispatcher
+from hooks import Dispatcher
 
 
 Dispatcher(sys.argv[0]).run()
