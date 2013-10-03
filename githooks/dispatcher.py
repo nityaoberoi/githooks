@@ -15,3 +15,4 @@ class Dispatcher(object):
         hook = Hook.from_name(self.hook_type)()
         hook.prepare()
         hook.run()
+        hook.post_run()

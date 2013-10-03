@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from sh import ErrorReturnCode
 from .exceptions import CommandException
 
 _COMMANDS = {}
@@ -52,11 +53,10 @@ class Pep8(Command):
     # ]
 
     def run(self, files=None):
+
         from sh import pep8
         for _file in files:
-            rc = pep8('-r', '--ignore=E501,E502,W293,E121,E123,E124,E125,E126,E127,E128', _file)
-            if rc.exit_code:
-                raise CommandException(rc.err)
+            pep8('-r', '--ignore=E501,E502,W293,E121,E123,E124,E125,E126,E127,E128', _file)
 
 
 class UnitTest(Command):
@@ -65,8 +65,8 @@ class UnitTest(Command):
     output = 'Running python unit tests...'
 
     def run(self, files=None):
-        pass
-        # command = 'python manage.py test --verbosity=0 --unit --settings=settings.isolated_tests'
+        from sh import python
+        python('manage.py', 'test', '--verbosity=0', '--unit', '--settings.settings.isolated_tests')
 
 
 class ModelValidation(Command):

@@ -14,7 +14,7 @@ import sys
 SUPPORTED_HOOKS = ['pre-commit']
 FILE_TYPES = ['python', 'js', 'html']
 FILE_TYPE_HOOKS = {
-    'python': {'pre-commit': 'unittest,pdb,print,settings,utf8,2to3'},
+    'python': {'pre-commit': 'pep8,unittest,pdb,print,settings,utf8,2to3'},
     'js': {'pre-commit': 'busterjs,jshint,debugger'},
     'html': {'pre-commit': 'debugger'},
     'general': {'pre-commit': 'unhandled-merge'}

@@ -4,11 +4,10 @@ from __future__ import unicode_literals
 
 import re
 import sys
-from sh import git
+from sh import git, ErrorReturnCode
 
 from .colors import red, green, highlight
 from .core import FILE_TYPES
-from .exceptions import CommandException
 from .plugins import Command
 
 _HOOKS = {}
@@ -50,6 +49,7 @@ class Hook(object):
 class PreCommitHook(Hook):
 
     name = 'pre-commit'
+    result = 0
 
     def prepare(self):
         modified = re.compile('^[MA]\s+(?P<name>.*)$')
@@ -72,21 +72,25 @@ class PreCommitHook(Hook):
                 sys.stdout.flush()
                 try:
                     command.run(files=self.files)
-                except CommandException, e:
+                except ErrorReturnCode, e:
                     print red(' ✗')
-                    print ' ', '\n  '.join(e.msg.splitlines())
+                    print ' ', '\n  '.join([e.stderr, e.stdout])
+                    self.result = 1
+                    break
                 else:
                     print green(' ✔ ')
-                finally:
-                    # Unstash changes to the working tree that we had stashed
-                    git.reset('--hard')
-                    try:
-                        # This hook can be called by a simple git commit --amend
-                        # without anything to actually get from the stash. In this
-                        # case, this command will break and we can safely ignore it.
-                        git.stash('pop', '--quiet', '--index')
-                    except Exception:
-                        pass
+
+            if self.result == 1:
+                break
 
     def post_run(self):
-        pass
+        git.reset('--hard')
+        try:
+            # This hook can be called by a simple git commit --amend
+            # without anything to actually get from the stash. In this
+            # case, this command will break and we can safely ignore it.
+            git.stash('pop', '--quiet', '--index')
+        except Exception:
+            pass
+
+        sys.exit(self.result)
